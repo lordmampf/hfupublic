@@ -1,0 +1,311 @@
+
+1.  
+a)
+
+struct Punkt {
+   double x;
+   double y;
+   
+   Punkt(double pX, double pY) {
+      x = pX;
+	  y = pY;
+   }  
+};
+
+b)
+
+struct Kreis {
+   Punkt mpunkt;
+   double radius;
+   
+   Kreis(Punkt pPunkt = Punkt(0,0), double pRadius = 1) : mpunkt(pPunkt), radius(pRadius) {
+   }
+};
+
+
+c)
+
+
+KFeld::KFeld(int d = 0) {
+	dim = d;
+	try {
+		kp = new Kreis[dim];
+	} catch (...) {
+		exit(7);
+	}
+}
+
+KFeld::~KFeld() {
+	delete[] kp;
+}
+
+Kreis KFeld::get(int pIndex) {
+	if (pIndex < 0 || pIndex >= dim)
+		exit(42);
+
+	return kp[pIndex];
+}
+
+void KFeld::set(int pIndex, Kreis pKreis) {
+	if (pIndex < 0 || pIndex >= dim)
+		exit(43);
+
+	kp[pIndex] = pKreis;
+}
+
+KFeld::KFeld(const KFeld & pFeld) {
+	dim = pFeld.dim;
+	kp = new Kreis[dim];
+	for (int i = 0; i < dim; i++) {
+		kp[i] = pFeld.kp[i];
+	}
+}
+
+const KFeld & KFeld::operator=(const KFeld & pFeld) {
+	if (this == &pFeld)
+		return *this;
+
+	if (dim != pFeld.dim) {
+		delete[] kp;
+		dim = pFeld.dim;
+		kp = new Kreis[dim];
+	}
+
+	for (int i = 0; i < dim; i++) {
+		kp[i] = pFeld.kp[i];
+	}
+
+	return *this;
+}
+
+Kreis & KFeld::operator[](const int pIndex) {
+	if (pIndex < 0 || pIndex >= dim)
+		exit(44);
+
+	return kp[pIndex];
+}
+
+
+2.
+
+a)
+Die Klasse Punkt hat keinen Konstruktor, der keine Elemente akzeptiert.
+Korrektur: 
+    Punkt(int a = 0, int b = 0) {
+	
+b)
+D
+X
+
+c)
+
+Memory Overflow - je nach Hardware ;)
+
+Destruktor fehlt:
+
+~BFeld() {
+	delete[] p;
+}
+
+
+d)
+
+int main() {             KoA
+	B& b = *new B;       KoA, KoB
+	a.funk1();           fA1
+	a.funk();            fA
+	b.funk1();           fB1
+	b.funk();            fB 
+	A* p = &a;           
+	p->funk();           fA
+	p->funk1();          fA1
+	p = &b;               
+	p->funk();           fB
+	p->funk1();          fA1
+}                        DeA
+
+
+e)
+
+Ja, da alle Operatoren als Elementfunktion beschrieben werden können (?)
+
+
+3.
+a)
+
+60 120
+
+Weil die Klammer (o1 *= 2) zuerst ausgewertet wird, das Ergebnis dann eine Punkt Referenz ist
+und diese dann *= 3 genommen wird.
+
+
+b)
+
+
+class Handle {};
+
+class BaseIO {
+	virtual Handle get() = 0;
+};
+
+class Input : public virtual BaseIO {
+	virtual Handle get() = 0;
+};
+
+class Output : public virtual BaseIO {
+	virtual Handle get() = 0;
+};
+
+class FileIO : public Input, public Output {
+	Handle get() {
+	return BaseIO::get();
+	//...
+	}
+};
+
+
+
+c)
+
+struct Test {
+   static int universalZahl;
+public:
+   static int getZahl() {
+      return universalZahl;
+   }
+   static void setZahl(int z) {
+	   universalZahl = z;
+   }
+};
+
+int Test::universalZahl = 42;
+
+int main() {
+   Test::setZahl(43);
+   return 0;
+}
+
+oder
+
+struct Test {
+	int universalZahl;
+	Test() {
+		universalZahl = 42;
+	}
+	int getZahl() {
+		return universalZahl;
+	}
+	void setZahl(int z) {
+		universalZahl = z;
+	}
+};
+
+
+int main() {
+   Test t;
+   t.setZahl(43);
+   return 0;
+}
+
+
+
+d)
+
+A
+
+
+e)
+
+Weil eine Lokale Variable als Referenz zurückgegeben wird.
+
+
+f)
+
+#include <iostream>
+class GZahl {
+	int i;
+public:
+	GZahl(int arg = 0) {
+		i = arg;
+	}
+	operator int() {
+		return i;
+	}
+};
+
+int main() {
+	int i;
+	GZahl gz;
+	i = gz;
+}
+
+
+4.
+
+a)
+
+P1
+
+b)
+
+template<typename T>
+bool istSortiert(T pStart, T pEnde) {
+	if (pStart == pEnde) {
+		throw "fehler";
+	}
+	if (pStart + 1 == pEnde) {
+		return true;
+	}
+	for (; pStart != (pEnde - 1); pStart++) {
+		if (!(*pStart <= *(pStart + 1)))
+			return false;
+	}
+	return true;
+}
+
+int main() {
+	vector<string> liste(2);
+	liste[0] = "abc";
+	liste[1] = "aba";
+	vector<string>::iterator start = liste.begin();
+	vector<string>::iterator ende = liste.end();
+	try {
+		cout << "Sortiert?  " << istSortiert<vector<string>::iterator>(start, ende) << endl;
+	} catch (const char * message) {
+		cout << message << endl;
+	}
+	return 0;
+}
+
+
+c)
+
+Weil bei der Funktion summe die Paramenter vom gleichen Datentyp sein müssen.
+Dies ist hier nicht der Fall (double, int)
+
+
+
+d)
+
+int main() {
+	int i;
+	std::cin >> i;
+
+	try {
+		myThrower(i);
+	} catch (const double a) {
+		cout << "double" << endl;
+	} catch (SpAusnahme a) {
+		cout << "SpAusnahme" << endl;
+	} catch (Ausnahme a) {
+		cout << "Ausnahme" << endl;
+	} catch (std::string * a) {
+		cout << "string" << endl;
+	} catch (std::exception a) {
+		cout << "exception" << endl;
+	} catch (...) {
+		cout << "unbekannt" << endl;
+	}
+}
+
+
